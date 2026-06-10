@@ -1,0 +1,121 @@
+@import "tailwindcss";
+@import "react-datepicker/dist/react-datepicker.css";
+
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container {
+  width: 100%;
+}
+
+.react-datepicker {
+  border: none !important;
+  overflow: hidden;
+  border-radius: 20px !important;
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(20px);
+  color: white !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.react-datepicker__header {
+  background: rgba(30, 41, 59, 0.95) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: white !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+  color: white !important;
+  font-weight: 600;
+}
+
+.react-datepicker__day-name,
+.react-datepicker__time-name {
+  color: white !important;
+}
+
+.react-datepicker__day {
+  color: white;
+}
+
+.react-datepicker__day:hover {
+  background-color: rgba(99, 102, 241, 0.4) !important;
+  border-radius: 10px;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #6366f1 !important;
+  border-radius: 10px;
+}
+
+.react-datepicker__time-container {
+  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.react-datepicker__time-box {
+  background: rgba(15, 23, 42, 0.95) !important;
+}
+
+.react-datepicker__time-list-item {
+  color: white !important;
+}
+
+.react-datepicker__time-list-item:hover {
+  background-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+.react-datepicker__triangle {
+  display: none;
+}
+
+/* Disabled / Excluded Days */
+.react-datepicker__day--disabled,
+.react-datepicker__day--excluded {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  color: rgba(248, 113, 113, 0.55) !important;
+  border-radius: 10px;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Disabled hover remove */
+.react-datepicker__day--disabled:hover,
+.react-datepicker__day--excluded:hover {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Disabled Time */
+.react-datepicker__time-list-item--disabled {
+  background-color: rgba(239, 68, 68, 0.12) !important;
+  color: rgba(248, 113, 113, 0.5) !important;
+  cursor: not-allowed;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
