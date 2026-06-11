@@ -1,7 +1,6 @@
 "use client";
 
 import ReactDatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 
 type Props = {
   label: string;
@@ -21,8 +20,7 @@ const CustomDatePicker = ({
   const now = new Date();
 
   const isToday =
-    selectedDate &&
-    selectedDate.toDateString() === now.toDateString();
+    selectedDate && selectedDate.toDateString() === now.toDateString();
 
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -32,7 +30,7 @@ const CustomDatePicker = ({
 
       <ReactDatePicker
         selected={selectedDate}
-        onChange={(date) => onChange(date)}
+        onChange={(date: Date | null) => onChange(date)}
         minDate={minDate}
         excludeDates={excludeDates}
         showTimeSelect
@@ -40,22 +38,15 @@ const CustomDatePicker = ({
         dateFormat="PPP p"
         wrapperClassName="w-full"
         popperPlacement="bottom-start"
-
         /* Disable past time for today */
-        minTime={
-          isToday
-            ? now
-            : new Date(0, 0, 0, 0, 0)
-        }
-
+        minTime={isToday ? now : new Date(0, 0, 0, 0, 0)}
         maxTime={new Date(0, 0, 0, 23, 59)}
-
-        popperModifiers={[
-          {
-            name: "flip",
-            enabled: false,
-          },
-        ]}
+        // popperModifiers={[
+        //   {
+        //     name: "flip",
+        //     enabled: false,
+        //   },
+        // ]}
         className="
           w-full
           rounded-2xl

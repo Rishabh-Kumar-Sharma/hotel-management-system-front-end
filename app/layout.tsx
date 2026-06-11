@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import {Header, Footer} from "./components/";
 import { ToastContainer } from "react-toastify";
+import "react-datepicker/dist/react-datepicker.css";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

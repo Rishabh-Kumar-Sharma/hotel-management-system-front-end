@@ -155,11 +155,11 @@ export default function RoomsPage() {
             <h1 className="text-3xl md:text-4xl font-bold mb-10">
               Available Rooms
             </h1>
-            {rooms.length === 0 ? (
+            {rooms?.length === 0 ? (
               <p className="text-gray-400">No rooms available.</p>
             ) : (
               <div className="grid md:grid-cols-3 gap-8">
-                {rooms.map((room) => (
+                {rooms?.map((room) => (
                   <div
                     key={room.id}
                     className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-6 shadow-lg hover:scale-105 transition"

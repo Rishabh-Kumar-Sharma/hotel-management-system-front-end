@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Loader, Popup, showToast } from "../components";
 import {
   ApiErrorCodesEnum,
+  Booking,
   BookingStatus,
   GetBookingsResponse,
   ToastType,
@@ -15,7 +16,7 @@ const Bookings = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const hasExpiredBookingRef = useRef(false);
   const router = useRouter();
-  const [bookings, setBookings] = useState<GetBookingsResponse["bookings"]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<
@@ -23,8 +24,7 @@ const Bookings = () => {
   >();
   const [showCancelPopup, setShowCancelPopup] = useState(false);
   const [showQRCodePopup, setShowQRCodePopup] = useState(false);
-  const [selectedBooking, setSelectedBooking] =
-    useState<GetBookingsResponse["bookings"][0]>();
+  const [selectedBooking, setSelectedBooking] = useState<Booking>();
   const [currentTime, setCurrentTime] = useState(Date.now());
 
   const fetchBookings = async () => {
@@ -45,7 +45,7 @@ const Bookings = () => {
         }
         showToast(data?.error, ToastType.ERROR);
       } else {
-        setBookings(data?.bookings);
+        setBookings(data?.bookings || []);
       }
     } catch (error) {
       console.error("Error fetching bookings:", error);
@@ -267,11 +267,15 @@ const Bookings = () => {
                     </p>
                     <p className="text-gray-300 text-sm mb-1">
                       Check In:{" "}
-                      {new Date(booking?.checkIn)?.toLocaleDateString("en-GB")}
+                      {new Date(booking?.checkIn || "")?.toLocaleDateString(
+                        "en-GB",
+                      )}
                     </p>
                     <p className="text-gray-300 text-sm mb-1">
                       Check Out:{" "}
-                      {new Date(booking?.checkOut)?.toLocaleDateString("en-GB")}
+                      {new Date(booking?.checkOut || "")?.toLocaleDateString(
+                        "en-GB",
+                      )}
                     </p>
                     {booking?.bookingStatus === BookingStatus.CREATED &&
                       booking?.expiresAt && (
