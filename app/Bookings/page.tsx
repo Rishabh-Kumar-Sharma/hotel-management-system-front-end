@@ -40,7 +40,7 @@ const Bookings = () => {
       const data: GetBookingsResponse = await response.json();
       console.log("Bookings data:", data);
       if (data?.error) {
-        if (data?.errorCode === ApiErrorCodesEnum.UNAUTHORIZED_ACCESS) {
+        if (data?.errorCode === ApiErrorCodesEnum.UNAUTHORIZED_ACCESS || data?.errorCode === ApiErrorCodesEnum.SESSION_TIMEOUT) {
           router.push("/Login");
         }
         showToast(data?.error, ToastType.ERROR);
