@@ -1,11 +1,32 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
+
+  const headerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        open &&
+        headerRef.current &&
+        !headerRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [open]);
+
   return (
-    <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-white/10 border-b border-white/20">
+    <header
+      className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-white/10 border-b border-white/20"
+      ref={headerRef}
+    >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between text-white">
         <Link href="/" className="text-xl font-bold tracking-wide">
           HotelFlow
@@ -41,7 +62,7 @@ export const Header = () => {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden px-6 pb-4 flex flex-col gap-4 text-white bg-black/40 backdrop-blur-xl">
+        <div className="md:hidden px-6 pb-4 flex flex-col gap-4 text-white bg-black/40 backdrop-blur-xl pt-2">
           <Link href="#features" onClick={() => setOpen(false)}>
             Features
           </Link>
@@ -49,11 +70,11 @@ export const Header = () => {
             About
           </Link>
           <Link
-            href="/"
+            href="/Login"
             onClick={() => setOpen(false)}
             className="bg-indigo-600 px-4 py-2 rounded-lg text-center"
           >
-            Dashboard
+            Login/Signup
           </Link>
         </div>
       )}
