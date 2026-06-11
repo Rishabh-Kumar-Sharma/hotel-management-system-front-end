@@ -94,18 +94,17 @@ const Bookings = () => {
   }, []);
 
   useEffect(() => {
-    const hasExpiredBooking = bookings?.some((booking) => {
-      if (
+    const hasExpiredBooking = bookings?.some(
+      (booking) =>
         booking?.bookingStatus === BookingStatus.CREATED &&
-        booking?.expiresAt
-      ) {
-        return new Date(booking.expiresAt).getTime() - currentTime <= 0;
-      }
-    });
+        booking?.expiresAt &&
+        new Date(booking?.expiresAt).getTime() <= currentTime,
+    );
     if (hasExpiredBooking && !hasExpiredBookingRef.current) {
       hasExpiredBookingRef.current = true;
       fetchBookings();
-    } else {
+    }
+    if (!hasExpiredBooking) {
       hasExpiredBookingRef.current = false;
     }
   }, [bookings, currentTime]);
@@ -296,7 +295,8 @@ const Bookings = () => {
                         <button
                           disabled={loading}
                           className="w-[50%] bg-indigo-600 hover:bg-indigo-500 py-2 rounded-lg font-medium transition"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setSelectedBookingId(booking?.bookingId);
                             setShowPopup(true);
                           }}
@@ -306,7 +306,8 @@ const Bookings = () => {
                         <button
                           disabled={loading}
                           className="w-[50%] bg-indigo-600 hover:bg-indigo-500 py-2 rounded-lg font-medium transition"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setSelectedBookingId(booking?.bookingId);
                             setShowCancelPopup(true);
                           }}
