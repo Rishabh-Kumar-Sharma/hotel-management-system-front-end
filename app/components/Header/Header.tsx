@@ -69,6 +69,12 @@ export const Header = () => {
           <Link href="#about" onClick={() => setOpen(false)}>
             About
           </Link>
+          <Link href="/Rooms" onClick={() => setOpen(false)}>
+            Rooms
+          </Link>
+          <Link href="/Bookings" onClick={() => setOpen(false)}>
+            Bookings
+          </Link>
           <Link
             href="/Login"
             onClick={() => setOpen(false)}
