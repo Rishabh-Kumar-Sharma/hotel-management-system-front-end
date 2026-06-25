@@ -27,11 +27,8 @@ export default function RoomsPage() {
   const fetchRooms = async () => {
     try {
       const availableRoomReq: FetchAvailableRoomsRequest = {
-        checkIn: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"), // current date and time
-        checkOut: format(
-          new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-          "yyyy-MM-dd'T'HH:mm:ss",
-        ), // +2 days,
+        checkIn: new Date().toISOString(), // current date and time
+        checkOut: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
       };
       const res = await fetch("/api/room/fetchAvailableRooms", {
         method: "POST",
