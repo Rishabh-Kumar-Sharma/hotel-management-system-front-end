@@ -67,8 +67,8 @@ export default function RoomsPage() {
     setLoading(true);
     const bookRoomReq: CreateBookingRequest = {
       roomId: selectedRoom?.id || 1,
-      checkIn: format(checkIn, "yyyy-MM-dd'T'HH:mm:ss"),
-      checkOut: format(checkOut, "yyyy-MM-dd'T'HH:mm:ss"),
+      checkIn: checkIn?.toISOString(),
+      checkOut: checkOut?.toISOString()
     };
     const bookRoom = async () => {
       try {
