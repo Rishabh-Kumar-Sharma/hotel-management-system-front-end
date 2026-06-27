@@ -41,12 +41,6 @@ export const Header = () => {
             Rooms
           </Link>
           <Link
-            href="/"
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl transition"
-          >
-            Dashboard
-          </Link>
-          <Link
             href="/Login"
             className="px-4 py-2 bg-blue-500 hover:bg-blue-400 rounded-xl transition"
           >
