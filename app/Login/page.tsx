@@ -1,17 +1,19 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useLogin } from "../hooks";
 import { showToast } from "../components";
-import { ToastType, LoginUserResponse } from "../types";
+import { ToastType } from "../types";
 import { Translations } from "../utils";
-import { useRouter } from "next/navigation";
 
 const Page = () => {
-  const router = useRouter();
+  const loginMutation = useLogin();
+
   const [personDetails, setPersonDetails] = useState({
     email: "",
     password: "",
   });
+
   const clearPersonDetails = () => {
     setPersonDetails({
       email: "",
@@ -20,28 +22,21 @@ const Page = () => {
   };
   const handleSubmitBtnClick = async (e) => {
     e.preventDefault();
-    try {
-      const data = await fetch("api/user/login", {
-        method: "POST",
-        body: JSON.stringify({
-          userName: personDetails?.email,
-          password: personDetails?.password,
-        }),
-      });
-      const parsedData: LoginUserResponse = await data?.json();
-      if (parsedData?.error) {
-        showToast(parsedData?.error, ToastType.ERROR);
-      } else {
+    clearPersonDetails();
+    loginMutation.mutate(personDetails, {
+      onSuccess: (data) => {
+        if (data?.error) {
+          showToast(data?.error, ToastType.ERROR);
+          return;
+        }
         showToast(Translations.CUSTOMER_LOGIN_SUCCESS, ToastType.SUCCESS);
-        sessionStorage?.setItem?.("authToken", parsedData?.authToken);
-        router.push("/");
-      }
-    } catch (error) {
-      showToast(Translations.INTERNAL_SERVER_ERROR, ToastType.ERROR);
-    } finally {
-      clearPersonDetails();
-    }
+      },
+      onError: () => {
+        showToast(Translations.INTERNAL_SERVER_ERROR, ToastType.ERROR);
+      },
+    });
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-100 via-white to-slate-200 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors duration-300 px-4">
       <div className="w-full max-w-md backdrop-blur-xl bg-white/80 dark:bg-white/10 border border-gray-200 dark:border-white/20 rounded-3xl shadow-2xl p-8">
@@ -85,10 +80,11 @@ const Page = () => {
 
           <button
             onClick={handleSubmitBtnClick}
+            disabled={loginMutation.isPending}
             type="submit"
             className="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition"
           >
-            Login
+            {loginMutation.isPending ? "Logging in..." : "Login"}
           </button>
         </form>
 

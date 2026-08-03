@@ -37,6 +37,10 @@
   color: white !important;
 }
 
+.react-datepicker .react-datepicker__day {
+  color: white !important;
+}
+
 .react-datepicker__day {
   color: white;
 }

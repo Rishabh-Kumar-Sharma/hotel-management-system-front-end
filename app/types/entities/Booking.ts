@@ -1,5 +1,4 @@
-import { BookingStatus } from "../enums/BookingStatus";
-import { RoomType } from "../enums/RoomType";
+import { BookingStatus, RoomType } from "../enums";
 
 export interface Booking {
   checkIn?: string;
@@ -10,4 +9,7 @@ export interface Booking {
   bookingStatus?: BookingStatus;
   bookingId?: number;
   expiresAt?: string;
+  orderId?: string;
+  paymentId?: string;
+  currency?: string;
 }

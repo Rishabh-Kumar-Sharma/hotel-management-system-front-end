@@ -2,13 +2,12 @@
 import Link from "next/link";
 import { useState } from "react";
 import { showToast } from "../components";
-import { ToastType } from "../types";
+import { CreateUserRequest, ToastType } from "../types";
 import { Translations } from "../utils";
-import { useRouter } from "next/navigation";
+import { useSignup } from "../hooks";
 
 export default function Signup() {
-
-  const router = useRouter();
+  const signup = useSignup();
 
   const [personDetails, setPersonDetails] = useState({
     emailId: "",
@@ -25,28 +24,19 @@ export default function Signup() {
   const handleSubmitBtnClick = async (e) => {
     e.preventDefault();
     resetPersonDetails();
-    try {
-      const data = await fetch("/api/user/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: personDetails.name,
-          userName: personDetails.emailId,
-          password: personDetails.contactNo,
-        }),
-      });
-      const parsedData = await data?.json();
-      if (parsedData?.error) {
-        showToast(parsedData?.error, ToastType.ERROR);
-      } else {
+    const req: CreateUserRequest = {
+      name: personDetails.name,
+      userName: personDetails.emailId,
+      password: personDetails.contactNo,
+    };
+    signup.mutate(req, {
+      onSuccess: () => {
         showToast(Translations.CUSTOMER_REGISTERED_SUCCESS, ToastType.SUCCESS);
-        router.push("/Login");
-      }
-    } catch (error) {
-      showToast(Translations.INTERNAL_SERVER_ERROR, ToastType.ERROR);
-    }
+      },
+      onError: (error) => {
+        showToast(error.message, ToastType.ERROR);
+      },
+    });
   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-100 via-white to-slate-200 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors duration-300 px-4">

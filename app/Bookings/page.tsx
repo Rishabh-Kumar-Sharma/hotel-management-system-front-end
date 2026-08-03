@@ -1,63 +1,44 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Loader, Popup, showToast } from "../components";
-import {
-  ApiErrorCodesEnum,
-  Booking,
-  BookingStatus,
-  GetBookingsResponse,
-  ToastType,
-} from "../types";
+import { Loader, Popup, RazorpayCheckout, showToast } from "../components";
+import { Booking, BookingStatus, ToastType } from "../types";
 import { useRouter } from "next/navigation";
 import { Translations } from "../utils";
 import QRCode from "qrcode";
+import { useFetchBookings } from "../hooks";
+import { useAppDispatch } from "../lib";
+import { setSelectedBooking } from "@/app/lib/slices/BookingSlice";
+import { useCancelBooking } from "../hooks/useCancelBooking";
 
 const Bookings = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const hasExpiredBookingRef = useRef(false);
   const router = useRouter();
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<
     number | undefined
   >();
   const [showCancelPopup, setShowCancelPopup] = useState(false);
   const [showQRCodePopup, setShowQRCodePopup] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking>();
-  const [currentTime, setCurrentTime] = useState(Date.now());
+  const [currentBooking, setCurrentBooking] = useState<Booking>();
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
+  const [showCheckoutPopup, setShowCheckoutPopup] = useState<boolean>(false);
 
-  const fetchBookings = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/booking/fetchBookings", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          authToken: `${sessionStorage.getItem("authToken")}`,
-        },
-      });
-      const data: GetBookingsResponse = await response.json();
-      console.log("Bookings data:", data);
-      if (data?.error) {
-        if (data?.errorCode === ApiErrorCodesEnum.UNAUTHORIZED_ACCESS || data?.errorCode === ApiErrorCodesEnum.SESSION_TIMEOUT) {
-          router.push("/Login");
-        }
-        showToast(data?.error, ToastType.ERROR);
-      } else {
-        setBookings(data?.bookings || []);
-      }
-    } catch (error) {
-      console.error("Error fetching bookings:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const dispatch = useAppDispatch();
+
+  const { isError, data, isLoading, refetch } = useFetchBookings();
+  const bookings = data?.bookings || [];
+
+  const cancelBooking = useCancelBooking();
 
   useEffect(() => {
-    // Fetch bookings data here if needed
-    fetchBookings();
-  }, []);
+    if (data?.error) {
+      showToast(data?.error, ToastType.ERROR);
+      return;
+    } else if (isError) {
+      showToast(Translations.INTERNAL_SERVER_ERROR, ToastType.ERROR);
+    }
+  }, [data, isError]);
 
   useEffect(() => {
     const getQRCodeData = () => {
@@ -68,7 +49,7 @@ const Bookings = () => {
         roomNumber,
         roomType,
         bookingStatus,
-      } = selectedBooking || {};
+      } = currentBooking || {};
       return [
         "Booking Details:",
         `Room Number: ${roomNumber}`,
@@ -81,10 +62,10 @@ const Bookings = () => {
     };
     if (canvasRef?.current) {
       QRCode.toCanvas(canvasRef.current, getQRCodeData(), (error) => {
-        if (error) console.error("Error generating QR code:", error);
+        console.log("Error occured in QRCode: ", error);
       });
     }
-  }, [showQRCodePopup]);
+  }, [showQRCodePopup, currentBooking]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -102,12 +83,12 @@ const Bookings = () => {
     );
     if (hasExpiredBooking && !hasExpiredBookingRef.current) {
       hasExpiredBookingRef.current = true;
-      fetchBookings();
+      refetch();
     }
     if (!hasExpiredBooking) {
       hasExpiredBookingRef.current = false;
     }
-  }, [bookings, currentTime]);
+  }, [bookings, currentTime, refetch]);
 
   const getRemainingTime = (expiresAt: string) => {
     const diff = new Date(expiresAt).getTime() - currentTime;
@@ -122,86 +103,38 @@ const Bookings = () => {
   };
 
   const handleConfirmSubmitButtonClick = () => {
+    dispatch?.(setSelectedBooking(currentBooking));
     setShowPopup(false);
-    setLoading(true);
-    const bookRoomConfirm = async () => {
-      try {
-        const res = await fetch("/api/booking/bookRoomConfirm", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            authToken: `${sessionStorage.getItem("authToken")}`,
-            bookingId: `${selectedBookingId}`,
-          },
-        });
-        const data = await res?.json();
-        if (data?.error) {
-          if (
-            data.errorCode === ApiErrorCodesEnum.UNAUTHORIZED_ACCESS ||
-            data.errorCode === ApiErrorCodesEnum.SESSION_TIMEOUT
-          ) {
-            router.push("/Login");
-          }
-          showToast(
-            data?.error || Translations.INTERNAL_SERVER_ERROR,
-            ToastType.ERROR,
-          );
-        } else {
-          fetchBookings(); // Refresh bookings after confirming
-          showToast(Translations.BOOKING_CONFIRMED, ToastType.SUCCESS);
-        }
-      } catch (error) {
-        console.error("Error booking room", error);
-        showToast(Translations.INTERNAL_SERVER_ERROR, ToastType.ERROR);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    bookRoomConfirm();
+    setShowCheckoutPopup(true);
   };
 
   const handleCancelSubmitButtonClick = () => {
     setShowCancelPopup(false);
-    setLoading(true);
-    const bookRoomCancel = async () => {
-      try {
-        const res = await fetch("/api/booking/cancelBooking", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            authToken: `${sessionStorage.getItem("authToken")}`,
-            bookingId: `${selectedBookingId}`,
-          },
-        });
-        const data = await res?.json();
+    if (!selectedBookingId) return;
+
+    cancelBooking.mutate(selectedBookingId, {
+      onSuccess: async (data) => {
         if (data?.error) {
-          if (data.errorCode === ApiErrorCodesEnum.UNAUTHORIZED_ACCESS) {
-            router.push("/Login");
-          }
           showToast(
             data?.error || Translations.INTERNAL_SERVER_ERROR,
             ToastType.ERROR,
           );
         } else {
-          fetchBookings(); // Refresh bookings after confirming
+          await refetch();
           showToast(Translations.BOOKING_CANCELLED, ToastType.SUCCESS);
         }
-      } catch (error) {
-        console.error("Error booking room", error);
-        showToast(Translations.INTERNAL_SERVER_ERROR, ToastType.ERROR);
-      } finally {
-        setLoading(false);
-      }
-    };
+      },
+    });
+  };
 
-    bookRoomCancel();
+  const handleRefresh = async () => {
+    await refetch();
   };
 
   return (
     <div className="min-h-screen pt-28 px-6 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       <div className="max-w-7xl mx-auto">
-        {loading ? (
+        {isLoading ? (
           <Loader />
         ) : (
           <>
@@ -235,6 +168,12 @@ const Bookings = () => {
                 onNegativeButtonClick={() => setShowCancelPopup(false)}
               />
             )}
+            {showCheckoutPopup && (
+              <RazorpayCheckout
+                onClose={() => setShowCheckoutPopup(false)}
+                refreshData={handleRefresh}
+              />
+            )}
             <h1 className="text-3xl md:text-4xl font-bold mb-10">
               My Bookings
             </h1>
@@ -250,7 +189,6 @@ const Bookings = () => {
                       if (booking?.bookingStatus !== BookingStatus.CONFIRMED) {
                         return;
                       }
-                      setSelectedBooking(booking);
                       setShowQRCodePopup(true);
                     }}
                   >
@@ -290,32 +228,35 @@ const Bookings = () => {
                           </div>
                         </div>
                       )}
-                    {booking?.bookingStatus !== BookingStatus.CONFIRMED && (
-                      <div className="flex mt-2 justify-between gap-4">
+                    <div
+                      className={`flex mt-2 gap-4 ${booking?.bookingStatus === BookingStatus.CONFIRMED ? "justify-center" : "justify-between"}`}
+                    >
+                      {booking?.bookingStatus !== BookingStatus.CONFIRMED && (
                         <button
-                          disabled={loading}
-                          className="w-[50%] bg-indigo-600 hover:bg-indigo-500 py-2 rounded-lg font-medium transition"
+                          disabled={isLoading}
+                          className="w-[50%] bg-indigo-600 hover:bg-indigo-500 py-2 rounded-lg font-medium transition cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedBookingId(booking?.bookingId);
                             setShowPopup(true);
+                            setCurrentBooking(booking);
                           }}
                         >
                           Confirm Booking
                         </button>
-                        <button
-                          disabled={loading}
-                          className="w-[50%] bg-indigo-600 hover:bg-indigo-500 py-2 rounded-lg font-medium transition"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedBookingId(booking?.bookingId);
-                            setShowCancelPopup(true);
-                          }}
-                        >
-                          Cancel Booking
-                        </button>
-                      </div>
-                    )}
+                      )}
+                      <button
+                        disabled={isLoading}
+                        className={`w-[50%] bg-indigo-600 hover:bg-indigo-500 py-2 rounded-lg font-medium transition cursor-pointer`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedBookingId(booking?.bookingId);
+                          setShowCancelPopup(true);
+                        }}
+                      >
+                        Cancel Booking
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

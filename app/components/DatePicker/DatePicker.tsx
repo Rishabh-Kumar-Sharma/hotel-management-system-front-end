@@ -2,9 +2,9 @@
 
 import ReactDatePicker from "react-datepicker";
 
-type Props = {
+interface Props {
   label: string;
-  selectedDate: Date | null;
+  selectedDate?: Date | null;
   onChange: (date: Date | null) => void;
   minDate?: Date;
   excludeDates?: Date[];
@@ -38,6 +38,7 @@ const CustomDatePicker = ({
         dateFormat="PPP p"
         wrapperClassName="w-full"
         popperPlacement="bottom-start"
+        withPortal
         /* Disable past time for today */
         minTime={isToday ? now : new Date(0, 0, 0, 0, 0)}
         maxTime={new Date(0, 0, 0, 23, 59)}

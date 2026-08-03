@@ -2,54 +2,70 @@
 
 import { useEffect, useState } from "react";
 import { Translations } from "../utils";
+import { CreateBookingRequest, Room, ToastType } from "../types";
 import {
-  ApiErrorCodesEnum,
-  CreateBookingRequest,
-  CreateBookingResponse,
-  FetchAvailableRoomsRequest,
-  FetchAvailableRoomsResponse,
-  Room,
-  ToastType,
-} from "../types";
-import { Popup, Loader, showToast, DatePicker } from "../components";
-import { useRouter } from "next/navigation";
-import { format } from "date-fns";
+  Popup,
+  Loader,
+  showToast,
+  DatePicker,
+  RazorpayCheckout,
+} from "../components";
+import { useBookRoom, useFetchAvailableRooms } from "../hooks";
+import { useAppDispatch } from "../lib";
+import { setSelectedBooking } from "../lib/slices/BookingSlice";
 
 export default function RoomsPage() {
-  const router = useRouter();
+  const roomsMutation = useFetchAvailableRooms();
+  const bookRoomMuation = useBookRoom();
+  const dispatch = useAppDispatch();
+
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [checkIn, setCheckIn] = useState<Date | null>(null);
-  const [checkOut, setCheckOut] = useState<Date | null>(null);
+  const [checkIn, setCheckIn] = useState<Date>(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow;
+  });
+  const [checkOut, setCheckOut] = useState<Date>(() => {
+    const dayAfterTomorrow = new Date();
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+    return dayAfterTomorrow;
+  });
+  const [tomorrow] = useState<Date>(() => {
+    const day = new Date();
+    day.setDate(day.getDate() + 1);
+    return day;
+  });
+  const [showRazorpayPopup, setShowRazorpayPopup] = useState(false);
 
   const fetchRooms = async () => {
-    try {
-      const availableRoomReq: FetchAvailableRoomsRequest = {
-        checkIn: new Date().toISOString(), // current date and time
-        checkOut: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-      };
-      const res = await fetch("/api/room/fetchAvailableRooms", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    const checkoutDate = new Date(tomorrow);
+    checkoutDate.setDate(checkoutDate.getDate() + 2);
+    roomsMutation.mutate(
+      {
+        checkIn: tomorrow.toISOString(),
+        checkOut: checkoutDate.toISOString(),
+      },
+      {
+        onSuccess: (data) => {
+          if (data?.error) {
+            showToast(data.error, ToastType.ERROR);
+          } else {
+            setRooms(data?.rooms || []);
+          }
         },
-        body: JSON.stringify(availableRoomReq),
-      });
-      const data: FetchAvailableRoomsResponse = await res?.json();
-      if (data?.error) {
-        showToast(data.error, ToastType.ERROR);
-      } else {
-        setRooms(data?.rooms || []);
-      }
-    } catch (err) {
-      console.error("Failed to fetch rooms", err);
-      showToast(Translations.INTERNAL_SERVER_ERROR, ToastType.ERROR);
-    } finally {
-      setLoading(false);
-    }
+        onError: () => {
+          showToast(Translations.INTERNAL_SERVER_ERROR, ToastType.ERROR);
+        },
+        onSettled: () => {
+          setLoading(false);
+        },
+      },
+    );
   };
+
   useEffect(() => {
     fetchRooms();
   }, []);
@@ -60,51 +76,39 @@ export default function RoomsPage() {
   };
 
   const handleSubmitButtonClick = () => {
-    if (checkIn === null || checkOut === null) {
+    if (!selectedRoom?.id) {
       return;
     }
+
     setShowDatePicker(false);
     setLoading(true);
     const bookRoomReq: CreateBookingRequest = {
-      roomId: selectedRoom?.id || 1,
+      roomId: selectedRoom.id,
       checkIn: checkIn?.toISOString(),
-      checkOut: checkOut?.toISOString()
+      checkOut: checkOut?.toISOString(),
     };
-    const bookRoom = async () => {
-      try {
-        const res = await fetch("/api/booking/bookRoom", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            authToken: `${sessionStorage.getItem("authToken")}`,
-          },
-          body: JSON.stringify(bookRoomReq),
-        });
-        const data: CreateBookingResponse = await res?.json();
+
+    bookRoomMuation.mutate(bookRoomReq, {
+      onSuccess: (data) => {
         if (data?.error) {
-          if (
-            data.errorCode === ApiErrorCodesEnum.UNAUTHORIZED_ACCESS ||
-            data.errorCode === ApiErrorCodesEnum.SESSION_TIMEOUT
-          ) {
-            router.push("/Login");
-          }
           showToast(
             data?.error || Translations.INTERNAL_SERVER_ERROR,
             ToastType.ERROR,
           );
-        } else {
-          showToast(Translations.BOOKING_SUCCESS, ToastType.SUCCESS);
-          router.push("/Bookings");
+          return;
         }
-      } catch (error) {
-        console.error("Error booking room", error);
+        dispatch(setSelectedBooking(data));
+        showToast(Translations.BOOKING_SUCCESS, ToastType.SUCCESS);
+        setShowRazorpayPopup(true);
+        fetchRooms();
+      },
+      onError: () => {
         showToast(Translations.INTERNAL_SERVER_ERROR, ToastType.ERROR);
-      } finally {
+      },
+      onSettled: () => {
         setLoading(false);
-      }
-    };
-
-    bookRoom();
+      },
+    });
   };
   const handleCancelButtonClick = () => {
     setShowDatePicker(false);
@@ -116,17 +120,30 @@ export default function RoomsPage() {
         <DatePicker
           label={Translations.CHECK_IN}
           selectedDate={checkIn}
-          onChange={setCheckIn}
-          minDate={new Date()}
-          excludeDates={checkOut && new Date() > checkOut ? [checkOut] : []}
+          onChange={(date) => {
+            if (date) {
+              setCheckIn(date);
+              if (checkOut <= date) {
+                const nextDay = new Date(date);
+                nextDay.setDate(nextDay.getDate() + 1);
+                setCheckOut(nextDay);
+              }
+            }
+          }}
+          minDate={tomorrow}
+          excludeDates={checkOut && tomorrow > checkOut ? [checkOut] : []}
         />
 
         <DatePicker
           label={Translations.CHECK_OUT}
           selectedDate={checkOut}
-          onChange={setCheckOut}
-          minDate={checkIn || new Date()}
-          excludeDates={checkIn ? [checkIn] : []}
+          onChange={(date) => {
+            if (date) {
+              setCheckOut(date);
+            }
+          }}
+          minDate={checkIn}
+          excludeDates={[checkIn]}
         />
       </div>
     );
@@ -142,16 +159,24 @@ export default function RoomsPage() {
             {showDatePicker && (
               <Popup
                 content={renderDatePickerPopup()}
-                positiveButtonContent={Translations.YES}
-                negativeButtonContent={Translations.NO}
+                positiveButtonContent={Translations.OK}
+                negativeButtonContent={Translations.CLOSE}
                 onPositiveButtonClick={handleSubmitButtonClick}
                 onNegativeButtonClick={handleCancelButtonClick}
-                isPositiveButtonDisabled={checkIn === null || checkOut === null}
+                isPositiveButtonDisabled={checkOut < checkIn}
               />
             )}
-            <h1 className="text-3xl md:text-4xl font-bold mb-10">
-              Available Rooms
-            </h1>
+            {showRazorpayPopup && (
+              <RazorpayCheckout
+                onClose={() => setShowRazorpayPopup(false)}
+                refreshData={fetchRooms}
+              />
+            )}
+            <div className="mb-10 flex">
+              <h1 className="text-3xl md:text-4xl font-bold">
+                Available Rooms
+              </h1>
+            </div>
             {rooms?.length === 0 ? (
               <p className="text-gray-400">No rooms available.</p>
             ) : (

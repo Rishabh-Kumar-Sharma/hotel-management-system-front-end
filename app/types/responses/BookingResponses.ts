@@ -1,18 +1,38 @@
 import { Booking } from "../entities";
 import { ApiErrorCodesEnum, BookingStatus } from "../enums";
-import { RoomType } from "../enums/RoomType";
 
-export interface CreateBookingResponse {
-  bookingId?: number;
-  bookingStatus?: BookingStatus;
-  checkIn?: string;
-  checkOut?: string;
+export interface ErrorType {
   error?: string;
   errorCode?: ApiErrorCodesEnum;
 }
 
-export interface GetBookingsResponse {
+export interface CreateBookingResponse extends ErrorType {
+  bookingId?: number;
+  bookingStatus?: BookingStatus;
+  checkIn?: string;
+  checkOut?: string;
+  amount?: number;
+  currency?: string;
+  orderId?: string;
+  receiptId?: string;
+}
+
+export interface GetBookingsResponse extends ErrorType {
   bookings?: Booking[];
-  error?: string;
-  errorCode?: ApiErrorCodesEnum;
+}
+
+export interface RazorpayOrderResponse extends ErrorType {
+  id?: string;
+  amount?: string;
+  currency?: string;
+}
+
+export interface ConfirmBookingResponse extends ErrorType {
+  bookingId?: number;
+  bookingStatus?: BookingStatus;
+}
+
+export interface CancelBookingResponse extends ErrorType {
+  bookingId?: number;
+  bookingStatus?: BookingStatus;
 }

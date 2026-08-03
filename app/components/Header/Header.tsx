@@ -1,83 +1,64 @@
 "use client";
-import { useRef, useState, useEffect } from "react";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { MobileMenu } from "../MobileMenu";
+import { AuthButton } from "../AuthButton";
 
 export const Header = () => {
-  const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const headerRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
+    const handler = (e: MouseEvent) => {
       if (
-        open &&
-        headerRef.current &&
-        !headerRef.current.contains(event.target as Node)
+        mobileOpen &&
+        ref.current &&
+        !ref.current.contains(e.target as Node)
       ) {
-        setOpen(false);
+        setMobileOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleOutsideClick);
+
+    document.addEventListener("mousedown", handler);
+
     return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("mousedown", handler);
     };
-  }, [open]);
+  }, [mobileOpen]);
 
   return (
     <header
+      ref={ref}
       className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-white/10 border-b border-white/20"
-      ref={headerRef}
     >
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between text-white">
-        <Link href="/" className="text-xl font-bold tracking-wide">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <Link href="/" className="text-xl font-bold text-white tracking-wide">
           HotelFlow
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="/Bookings" className="hover:text-indigo-300 transition">
-            Bookings
-          </Link>
-          <Link href="/Rooms" className="hover:text-indigo-300 transition">
-            Rooms
-          </Link>
-          <Link
-            href="/Login"
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-400 rounded-xl transition"
-          >
-            Login / Signup
-          </Link>
+        {/* Desktop */}
+
+        <nav className="hidden md:flex gap-8 items-center">
+          <Link href="/Rooms">Rooms</Link>
+
+          <Link href="/Bookings">Bookings</Link>
+
+          <AuthButton />
         </nav>
 
-        {/* Mobile Button */}
-        <button className="md:hidden" onClick={() => setOpen(!open)}>
+        {/* Mobile */}
+
+        <button
+          onClick={() => setMobileOpen((prev) => !prev)}
+          className="md:hidden text-white text-2xl"
+        >
           ☰
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      {open && (
-        <div className="md:hidden px-6 pb-4 flex flex-col gap-4 text-white bg-black/40 backdrop-blur-xl pt-2">
-          <Link href="#features" onClick={() => setOpen(false)}>
-            Features
-          </Link>
-          <Link href="#about" onClick={() => setOpen(false)}>
-            About
-          </Link>
-          <Link href="/Rooms" onClick={() => setOpen(false)}>
-            Rooms
-          </Link>
-          <Link href="/Bookings" onClick={() => setOpen(false)}>
-            Bookings
-          </Link>
-          <Link
-            href="/Login"
-            onClick={() => setOpen(false)}
-            className="bg-indigo-600 px-4 py-2 rounded-lg text-center"
-          >
-            Login/Signup
-          </Link>
-        </div>
-      )}
+      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </header>
   );
 };

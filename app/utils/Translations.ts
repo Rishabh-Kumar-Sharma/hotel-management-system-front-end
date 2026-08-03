@@ -9,7 +9,7 @@ export enum Translations {
   SURE_TO_CONFIRM = "Are you sure you want to confirm this booking?",
   CONFIRM = "Confirm",
   CANCEL = "Cancel",
-  OK = "OK",
+  OK = "Ok",
   YES = "Yes",
   NO = "No",
   INVALID_CHECK_IN_OUT = "Please select check-in and check-out dates",
@@ -19,4 +19,11 @@ export enum Translations {
   BOOKING_CANCELLED = "Your booking has been cancelled!",
   CLOSE = "Close",
   SCAN_QR_AT_RECEPTION = "Scan this QR code at the reception to check in:",
+  RAZORPAY_LOADING_FAILED = "Unable to load RazorPay. Please try again later.",
+  PAYMENT_SUCCESS = "Payment successful!",
+  PAYMENT_FAILED = "Payment failed. Please try again.",
+  RAZORPAY_ORDER_CREATION_FAILED = "Failed to create Razorpay order. Please try again.",
+  PAYMENT_VERIFICATION_FAILED = "Payment verification failed. Please contact support.",
+  PAYMENT_VERIFIED_SUCCESSFULLY = "Payment verified successfully!",
+  PROCEED="Proceed"
 }

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import {Header, Footer} from "./components/";
+import { Header, Footer } from "./components/";
 import { ToastContainer } from "react-toastify";
 import "react-datepicker/dist/react-datepicker.css";
-
+import { ReactQueryProvider, StoreProvider } from "./providers";
+import AuthInitializer from "./providers/AuthInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,10 +32,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ToastContainer />
-        <Header />
-        {children}
-        <Footer />
+        <ReactQueryProvider>
+          <StoreProvider>
+            <AuthInitializer>
+              <ToastContainer />
+              <Header />
+              {children}
+              <Footer />
+            </AuthInitializer>
+          </StoreProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );
