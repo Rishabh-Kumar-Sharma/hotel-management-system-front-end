@@ -1,5 +1,5 @@
-import { LoginUserResponse } from "@/app/types";
+import { CreateUserResponse, LoginUserResponse } from "@/app/types";
 
 export interface UserState {
-  readonly user?: LoginUserResponse;
+  readonly user?: LoginUserResponse | CreateUserResponse;
 }

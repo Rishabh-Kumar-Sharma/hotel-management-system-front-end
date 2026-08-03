@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 import { UserState } from "../types";
-import { LoginUserResponse } from "@/app/types";
+import { CreateUserResponse, LoginUserResponse } from "@/app/types";
 
 const initialState: UserState = {
   user: undefined,
@@ -11,7 +11,7 @@ const userSlice = createSlice({
   name: "userReducer",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<LoginUserResponse | undefined>) => {
+    setUser: (state, action: PayloadAction<LoginUserResponse | CreateUserResponse | undefined>) => {
       state.user = action.payload;
     },
   },
