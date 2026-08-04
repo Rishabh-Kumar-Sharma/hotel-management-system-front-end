@@ -189,6 +189,7 @@ const Bookings = () => {
                       if (booking?.bookingStatus !== BookingStatus.CONFIRMED) {
                         return;
                       }
+                      setCurrentBooking(booking);
                       setShowQRCodePopup(true);
                     }}
                   >
