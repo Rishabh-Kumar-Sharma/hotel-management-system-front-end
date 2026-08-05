@@ -23,9 +23,10 @@ export default function RoomsPage() {
   const dispatch = useAppDispatch();
 
   const { roomFilter } = useAppSelector(selectRoom);
-  const filterIcon = roomFilter
-    ? "/filter-reset-svgrepo-com.svg"
-    : "/filter-svgrepo-com.svg";
+  // const filterIcon = roomFilter
+  //   ? "/filter-reset-svgrepo-com.svg"
+  //   : "/filter-svgrepo-com.svg";
+  const filterIcon='/filter-svgrepo-com.svg'
 
   const [showFilterPopup, setShowFilterPopup] = useState<boolean>(false);
 
