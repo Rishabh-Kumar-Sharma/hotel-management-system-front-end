@@ -30,6 +30,7 @@ const Bookings = () => {
   const bookings = data?.bookings || [];
 
   const cancelBooking = useCancelBooking();
+  const { isPending } = cancelBooking || {};
 
   useEffect(() => {
     if (data?.error) {
@@ -134,7 +135,7 @@ const Bookings = () => {
   return (
     <div className="min-h-screen pt-28 px-6 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       <div className="max-w-7xl mx-auto">
-        {isLoading ? (
+        {isLoading || isPending ? (
           <Loader />
         ) : (
           <>
