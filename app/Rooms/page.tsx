@@ -9,15 +9,25 @@ import {
   showToast,
   DatePicker,
   RazorpayCheckout,
+  Filter,
 } from "../components";
 import { useBookRoom, useFetchAvailableRooms } from "../hooks";
-import { useAppDispatch } from "../lib";
+import { useAppDispatch, useAppSelector } from "../lib";
 import { setSelectedBooking } from "../lib/slices/BookingSlice";
+import Image from "next/image";
+import { selectRoom, setRoomFilter } from "../lib/slices/RoomSlice";
 
 export default function RoomsPage() {
   const roomsMutation = useFetchAvailableRooms();
   const bookRoomMuation = useBookRoom();
   const dispatch = useAppDispatch();
+
+  const { roomFilter } = useAppSelector(selectRoom);
+  const filterIcon = roomFilter
+    ? "/filter-reset-svgrepo-com.svg"
+    : "/filter-svgrepo-com.svg";
+
+  const [showFilterPopup, setShowFilterPopup] = useState<boolean>(false);
 
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,8 +55,8 @@ export default function RoomsPage() {
     checkoutDate.setDate(checkoutDate.getDate() + 2);
     roomsMutation.mutate(
       {
-        checkIn: tomorrow.toISOString(),
-        checkOut: checkoutDate.toISOString(),
+        checkIn: roomFilter?.checkIn || tomorrow.toISOString(),
+        checkOut: roomFilter?.checkOut || checkoutDate.toISOString(),
       },
       {
         onSuccess: (data) => {
@@ -67,6 +77,18 @@ export default function RoomsPage() {
   };
 
   useEffect(() => {
+    fetchRooms();
+  }, [roomFilter]);
+
+  useEffect(() => {
+    dispatch?.(
+      setRoomFilter?.({
+        checkIn: new Date().toISOString(),
+        checkOut: new Date(
+          new Date().setDate(new Date().getDate() + 2),
+        ).toISOString(),
+      }),
+    );
     fetchRooms();
   }, []);
 
@@ -166,16 +188,32 @@ export default function RoomsPage() {
                 isPositiveButtonDisabled={checkOut < checkIn}
               />
             )}
+
             {showRazorpayPopup && (
               <RazorpayCheckout
                 onClose={() => setShowRazorpayPopup(false)}
                 refreshData={fetchRooms}
               />
             )}
-            <div className="mb-10 flex">
+
+            {showFilterPopup && (
+              <Filter onClose={() => setShowFilterPopup(false)} />
+            )}
+
+            <div className="mb-10 flex justify-between items-center">
               <h1 className="text-3xl md:text-4xl font-bold">
                 Available Rooms
               </h1>
+              <Image
+                className="cursor-pointer"
+                src={filterIcon}
+                alt="filter"
+                width={30}
+                height={30}
+                onClick={() => {
+                  setShowFilterPopup(true);
+                }}
+              />
             </div>
             {rooms?.length === 0 ? (
               <p className="text-gray-400">No rooms available.</p>

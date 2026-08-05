@@ -25,5 +25,6 @@ export enum Translations {
   RAZORPAY_ORDER_CREATION_FAILED = "Failed to create Razorpay order. Please try again.",
   PAYMENT_VERIFICATION_FAILED = "Payment verification failed. Please contact support.",
   PAYMENT_VERIFIED_SUCCESSFULLY = "Payment verified successfully!",
-  PROCEED="Proceed"
+  PROCEED = "Proceed",
+  APPLY_FILTERS = "Apply Filter",
 }

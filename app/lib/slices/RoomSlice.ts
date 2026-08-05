@@ -5,6 +5,7 @@ import { RootState } from "../store";
 
 const initialState: RoomState = {
   rooms: undefined,
+  roomFilter: undefined,
 };
 const roomSlice = createSlice({
   name: "roomReducer",
@@ -16,10 +17,16 @@ const roomSlice = createSlice({
     ) => {
       state.rooms = action.payload;
     },
+    setRoomFilter: (
+      state,
+      action: PayloadAction<RoomState["roomFilter"] | undefined>,
+    ) => {
+      state.roomFilter = action.payload;
+    },
   },
 });
 
-export const { setRoom } = roomSlice.actions;
+export const { setRoom, setRoomFilter } = roomSlice.actions;
 
 export const selectRoom = (state: RootState) => state.roomReducer;
 export const roomReducer = roomSlice.reducer;
