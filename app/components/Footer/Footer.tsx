@@ -2,7 +2,7 @@ export const Footer = () => {
   return (
     <footer>
       <div className="backdrop-blur-xl bg-white/10 border-t border-white/20">
-        <div className="min-h-[160px] flex flex-col items-center justify-center text-center px-6">
+        <div className="min-h-[160px] flex flex-col items-center justify-center text-center px-6 py-2">
           <h3 className="text-xl font-semibold text-white tracking-wide">
             HotelFlow
           </h3>
