@@ -13,12 +13,14 @@ export const Filter = ({ onClose }: { onClose?: () => void }) => {
   const [checkIn, setCheckIn] = useState<Date>(() => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow;
+    return roomFilter?.checkIn ? new Date(roomFilter.checkIn) : tomorrow;
   });
   const [checkOut, setCheckOut] = useState<Date>(() => {
     const dayAfterTomorrow = new Date();
     dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-    return dayAfterTomorrow;
+    return roomFilter?.checkOut
+      ? new Date(roomFilter.checkOut)
+      : dayAfterTomorrow;
   });
   const [tomorrow] = useState<Date>(() => {
     const day = new Date();
@@ -40,9 +42,7 @@ export const Filter = ({ onClose }: { onClose?: () => void }) => {
       <div className="flex flex-col gap-5">
         <DatePicker
           label={Translations.CHECK_IN}
-          selectedDate={
-            roomFilter?.checkIn ? new Date(roomFilter.checkIn) : checkIn
-          }
+          selectedDate={checkIn}
           onChange={(date) => {
             if (date) {
               setCheckIn(date);
@@ -59,9 +59,7 @@ export const Filter = ({ onClose }: { onClose?: () => void }) => {
 
         <DatePicker
           label={Translations.CHECK_OUT}
-          selectedDate={
-            roomFilter?.checkOut ? new Date(roomFilter.checkOut) : checkOut
-          }
+          selectedDate={checkOut}
           onChange={(date) => {
             if (date) {
               setCheckOut(date);
