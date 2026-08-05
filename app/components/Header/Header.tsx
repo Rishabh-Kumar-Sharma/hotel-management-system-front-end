@@ -45,7 +45,7 @@ export const Header = () => {
 
           <Link href="/Bookings">Bookings</Link>
 
-          <AuthButton />
+          <AuthButton onClick={() => setMobileOpen(false)} />
         </nav>
 
         {/* Mobile */}

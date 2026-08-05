@@ -4,6 +4,7 @@ import Link from "next/link";
 import { X, User, CalendarDays, LogOut } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/app/lib";
 import { selectUser, setUser } from "@/app/lib/slices/UserSlice";
+import { Logout } from "@/app/utils";
 
 interface Props {
   open: boolean;
@@ -76,8 +77,7 @@ export const ProfileDrawer = ({ open, onClose }: Props) => {
           <button
             className="flex items-center gap-4 px-6 py-4 hover:bg-red-500/20 transition text-red-400"
             onClick={() => {
-              sessionStorage.removeItem("authToken");
-              dispatch(setUser(undefined));
+              Logout();
               onClose?.();
             }}
           >
