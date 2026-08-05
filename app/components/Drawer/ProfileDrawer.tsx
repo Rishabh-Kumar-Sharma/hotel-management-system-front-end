@@ -4,7 +4,7 @@ import Link from "next/link";
 import { X, User, CalendarDays, LogOut } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/app/lib";
 import { selectUser, setUser } from "@/app/lib/slices/UserSlice";
-import { Logout } from "@/app/utils";
+import { useRouter } from "next/navigation";
 
 interface Props {
   open: boolean;
@@ -14,6 +14,7 @@ interface Props {
 export const ProfileDrawer = ({ open, onClose }: Props) => {
   const { user } = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   return (
     <>
@@ -77,7 +78,9 @@ export const ProfileDrawer = ({ open, onClose }: Props) => {
           <button
             className="flex items-center gap-4 px-6 py-4 hover:bg-red-500/20 transition text-red-400"
             onClick={() => {
-              Logout();
+              sessionStorage.removeItem("authToken");
+              dispatch(setUser(undefined));
+              router.push("/Login");
               onClose?.();
             }}
           >
