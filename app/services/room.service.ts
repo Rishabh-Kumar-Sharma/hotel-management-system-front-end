@@ -11,9 +11,6 @@ export const fetchRooms = async (
 ): Promise<FetchAvailableRoomsResponse> => {
   const res = await fetch("/api/room/fetchAvailableRooms", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(request),
   });
   const data: FetchAvailableRoomsResponse = await res?.json();
@@ -30,10 +27,6 @@ export const checkAvailability = async (
 ): Promise<GetRoomAvailabilityResponse> => {
   const res = await fetch("/api/room/checkAvailability", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      authToken: `${sessionStorage.getItem("authToken")}`,
-    },
     body: JSON.stringify(request),
   });
   const data: GetRoomAvailabilityResponse = await res?.json();

@@ -17,11 +17,7 @@ export async function fetchUserData(
 
 export async function fetchCurrentUser(): Promise<LoginUserResponse> {
   const data = await fetch("api/user/fetchCurrentUser", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      authToken: `${sessionStorage?.getItem("authToken")}`,
-    },
+    method: "GET"
   });
 
   const parsedRes = await data?.json();
@@ -37,9 +33,6 @@ export async function Signup(
 ): Promise<CreateUserResponse> {
   const data = await fetch("/api/user/signup", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(request),
   });
   const parsedData: CreateUserResponse = await data?.json();

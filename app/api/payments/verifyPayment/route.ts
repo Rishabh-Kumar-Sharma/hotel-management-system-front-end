@@ -5,14 +5,12 @@ import { OperationTypes } from "../../types/OperationTypes";
 export async function POST(request: Request) {
   const URL = `${process?.env?.BACK_END_URL}/api/payments/verify-payment`;
   const bodyData = await request?.json();
-  const authToken = request.headers.get("authToken");
 
   const res = await fetchData(
     URL,
     bodyData,
     OperationTypes.POST,
-    ApiMessageTypes.PAYMENT_VERIFICATION_FAILED,
-    authToken || undefined,
+    ApiMessageTypes.PAYMENT_VERIFICATION_FAILED
   );
   const data = await res?.json();
   return new Response(JSON.stringify(data), {

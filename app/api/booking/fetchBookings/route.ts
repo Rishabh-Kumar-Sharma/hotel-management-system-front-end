@@ -4,14 +4,12 @@ import { OperationTypes } from "../../types/OperationTypes";
 
 export async function GET(request: Request) {
   const URL = `${process?.env?.BACK_END_URL}/api/bookings/getAllBookings`;
-  const authToken = request.headers.get("authToken");
 
   const res = await fetchData(
     URL,
     null,
     OperationTypes.GET,
-    ApiMessageTypes.NO_BOOKING_FOUND,
-    authToken || undefined,
+    ApiMessageTypes.NO_BOOKING_FOUND
   );
   const data = await res?.json();
   return new Response(JSON.stringify(data), {

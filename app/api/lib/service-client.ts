@@ -1,40 +1,41 @@
+import { cookies } from "next/headers";
 import { ApiMessageTypes } from "../types/ApiMessageTypes";
 import { OperationTypes } from "../types/OperationTypes";
 import { NextResponse } from "next/server";
+
+const getAuthHeaders = async () => {
+  const authToken = (await cookies())?.get("authToken")?.value;
+  return {
+    "Content-Type": "application/json",
+    ...(authToken && {
+      Authorization: `Bearer ${authToken}`,
+    }),
+  };
+};
 
 export const fetchData = (
   url: string,
   bodyData?: any,
   method: OperationTypes = OperationTypes.POST,
-  apiFallBackMessage?: string,
-  authToken?: string,
+  apiFallBackMessage?: string
 ) => {
   switch (method) {
     case OperationTypes.POST:
-      return fetchPost(url, bodyData, apiFallBackMessage, authToken);
+      return fetchPost(url, bodyData, apiFallBackMessage);
     case OperationTypes.DELETE:
-      return deleteData(url, apiFallBackMessage, authToken);
+      return deleteData(url, apiFallBackMessage);
     case OperationTypes.GET:
-      return fetchGet(url, apiFallBackMessage, authToken);
+      return fetchGet(url, apiFallBackMessage);
     default:
       throw new Error(ApiMessageTypes.INVALID_OPERATION_TYPE);
   }
 };
 
-const fetchGet = async (
-  url: string,
-  apiFallBackMessage?: string,
-  authToken?: string,
-) => {
+const fetchGet = async (url: string, apiFallBackMessage?: string) => {
   try {
     const res = await fetch(url, {
       method: OperationTypes.GET,
-      headers: {
-        "Content-Type": "application/json",
-        ...(authToken && {
-          Authorization: `Bearer ${authToken}`,
-        }),
-      },
+      headers: await getAuthHeaders(),
     });
     const data = await res?.json();
     if (res?.ok) {
@@ -71,17 +72,11 @@ const fetchPost = async (
   url: string,
   bodyData: any,
   apiFallBackMessage?: string,
-  authToken?: string,
 ) => {
   try {
     const res = await fetch(url, {
       method: OperationTypes.POST,
-      headers: {
-        "Content-Type": "application/json",
-        ...(authToken && {
-          Authorization: `Bearer ${authToken}`,
-        }),
-      },
+      headers: await getAuthHeaders(),
       body: JSON.stringify(bodyData || {}),
     });
     const data = await res?.json();
@@ -117,18 +112,12 @@ const fetchPost = async (
 
 const deleteData = async (
   URL: string,
-  apiFallBackMessage?: string,
-  authToken?: string,
+  apiFallBackMessage?: string
 ) => {
   try {
     const res = await fetch(URL, {
       method: OperationTypes.DELETE,
-      headers: {
-        "Content-Type": "application/json",
-        ...(authToken && {
-          Authorization: `Bearer ${authToken}`,
-        }),
-      },
+      headers: await getAuthHeaders(),
     });
     const data = await res?.json();
     if (res?.ok) {

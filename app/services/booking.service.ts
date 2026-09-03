@@ -12,10 +12,6 @@ export const bookRoom = async (
 ): Promise<CreateBookingResponse> => {
   const res = await fetch("/api/booking/bookRoom", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      authToken: `${sessionStorage.getItem("authToken")}`,
-    },
     body: JSON.stringify(request),
   });
   const data: CreateBookingResponse = await res?.json();
@@ -25,10 +21,6 @@ export const bookRoom = async (
 export const fetchBookings = async (): Promise<GetBookingsResponse> => {
   const response = await fetch("/api/booking/fetchBookings", {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      authToken: `${sessionStorage.getItem("authToken")}`,
-    },
   });
 
   return await response.json();
@@ -39,10 +31,6 @@ export const bookRoomConfirm = async (
 ): Promise<ConfirmBookingResponse> => {
   const res = await fetch("/api/booking/bookRoomConfirm", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      authToken: `${sessionStorage.getItem("authToken")}`,
-    },
     body: JSON.stringify(request),
   });
 
