@@ -17,6 +17,7 @@ export enum ApiMessageTypes {
   BOOKING_NOT_CONFIRMED = "Booking could not be confirmed",
   BOOKING_CANCEL_FAILED = "Booking cancellation failed",
   RAZORPAY_ORDER_CREATION_FAILED = "Failed to create Razorpay order",
-  PAYMENT_VERIFICATION_FAILED="Payment verification failed",
-  PAYMENT_VERIFIED_SUCCESSFULLY="Payment verified successfully"
+  PAYMENT_VERIFICATION_FAILED = "Payment verification failed",
+  PAYMENT_VERIFIED_SUCCESSFULLY = "Payment verified successfully",
+  NO_BOOKING_AVAILABLE = "Booking is not available for the selected dates",
 }

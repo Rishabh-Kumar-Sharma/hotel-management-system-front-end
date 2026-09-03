@@ -31,7 +31,9 @@ const fetchGet = async (
       method: OperationTypes.GET,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
+        ...(authToken && {
+          Authorization: `Bearer ${authToken}`,
+        }),
       },
     });
     const data = await res?.json();
@@ -123,7 +125,9 @@ const deleteData = async (
       method: OperationTypes.DELETE,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
+        ...(authToken && {
+          Authorization: `Bearer ${authToken}`,
+        }),
       },
     });
     const data = await res?.json();

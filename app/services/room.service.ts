@@ -1,6 +1,9 @@
 import {
+  ApiErrorCodesEnum,
   FetchAvailableRoomsRequest,
   FetchAvailableRoomsResponse,
+  GetRoomAvailabilityRequest,
+  GetRoomAvailabilityResponse,
 } from "../types";
 
 export const fetchRooms = async (
@@ -19,5 +22,27 @@ export const fetchRooms = async (
     throw new Error(data?.error);
   }
 
+  return data;
+};
+
+export const checkAvailability = async (
+  request?: GetRoomAvailabilityRequest,
+): Promise<GetRoomAvailabilityResponse> => {
+  const res = await fetch("/api/room/checkAvailability", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      authToken: `${sessionStorage.getItem("authToken")}`,
+    },
+    body: JSON.stringify(request),
+  });
+  const data: GetRoomAvailabilityResponse = await res?.json();
+  if (
+    (data?.error &&
+      data?.errorCode !== ApiErrorCodesEnum.UNAUTHORIZED_ACCESS) &&
+    data?.errorCode !== ApiErrorCodesEnum.SESSION_TIMEOUT
+  ) {
+    throw new Error(data?.error);
+  }
   return data;
 };

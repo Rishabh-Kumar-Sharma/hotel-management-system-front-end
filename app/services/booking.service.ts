@@ -1,10 +1,10 @@
 import {
-  ApiErrorCodesEnum,
   CancelBookingResponse,
   ConfirmBookingResponse,
   CreateBookingRequest,
   CreateBookingResponse,
   GetBookingsResponse,
+  UpdateBookingDetailsRequest,
 } from "../types";
 
 export const bookRoom = async (
@@ -67,4 +67,20 @@ export const bookRoomCancel = async (
     },
   });
   return await res?.json();
+};
+
+export const updateBookingDetails = async (
+  request: UpdateBookingDetailsRequest,
+): Promise<GetBookingsResponse> => {
+  const res = await fetch("/api/booking/updateBooking", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      authToken: `${sessionStorage.getItem("authToken")}`,
+    },
+    body: JSON.stringify(request),
+  });
+
+  const data: GetBookingsResponse = await res?.json();
+  return data;
 };

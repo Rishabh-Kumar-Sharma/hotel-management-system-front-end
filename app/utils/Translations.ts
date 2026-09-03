@@ -27,4 +27,7 @@ export enum Translations {
   PAYMENT_VERIFIED_SUCCESSFULLY = "Payment verified successfully!",
   PROCEED = "Proceed",
   APPLY_FILTERS = "Apply Filter",
+  SELECT = "Select",
+  CHECK_AVAILABILITY = "Check Availability",
+  BOOKING_UPDATE_SUCCESS = "Booking updated successfully",
 }

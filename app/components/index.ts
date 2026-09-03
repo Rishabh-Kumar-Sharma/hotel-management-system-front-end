@@ -11,3 +11,4 @@ export * from "./AuthButton";
 export * from "./MobileMenu";
 export * from "./Drawer";
 export * from './Filter'
+export * from './RoomAvailability'
