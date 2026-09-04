@@ -12,6 +12,7 @@ import { useUpdateBooking } from "@/app/hooks";
 import { UpdateBookingDetailsRequest } from "@/app/types";
 import { selectBooking } from "@/app/lib/slices/BookingSlice";
 import { showToast } from "../Toast";
+import { getBusinessTimeZone } from "@/app/utils";
 
 export interface RoomAvailabilityProps {
   onClose?: () => void;
@@ -22,14 +23,15 @@ export const RoomAvailability = ({ onClose }: RoomAvailabilityProps) => {
 
   const { selectedBooking } = useAppSelector(selectBooking);
   const { roomAvailabilityResponse } = useAppSelector(selectRoom);
-  const { availability, availableSlots } = roomAvailabilityResponse || {};
+  const { status: availability, availableSlots } =
+    roomAvailabilityResponse || {};
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const updateBooking = useUpdateBooking();
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | undefined>();
 
   const formatDate = (date: string | Date) =>
     new Date(date).toLocaleString("en-IN", {
-      timeZone: "UTC",
+      timeZone: getBusinessTimeZone(),
       day: "2-digit",
       month: "short",
       hour: "numeric",
@@ -67,21 +69,6 @@ export const RoomAvailability = ({ onClose }: RoomAvailabilityProps) => {
     });
   };
 
-  if (availability === RoomAvailabilityEnum.AVAILABLE) {
-    return (
-      <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4">
-        <div className="flex items-center gap-2 text-emerald-300">
-          <Check size={18} />
-          <span className="font-medium">Available</span>
-        </div>
-
-        <p className="mt-1 text-sm text-gray-400">
-          This room is available for your selected dates.
-        </p>
-      </div>
-    );
-  }
-
   if (availability === RoomAvailabilityEnum.NOT_AVAILABLE) {
     return (
       <div className="rounded-2xl border border-red-400/20 bg-red-500/10 p-4">
@@ -111,12 +98,22 @@ export const RoomAvailability = ({ onClose }: RoomAvailabilityProps) => {
           onNegativeButtonClick={() => setShowPopup(false)}
         />
       )}
-      <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-4">
+      <div
+        className={`rounded-2xl border border-${availability === RoomAvailabilityEnum.PARTIALLY_AVAILABLE ? "amber-400/20" : "emerald-400/20"} 
+        bg-${availability === RoomAvailabilityEnum.PARTIALLY_AVAILABLE ? "amber-500/10" : "emerald-500/10"} p-4`}
+      >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-amber-300">
-            <Clock size={18} />
-            <span className="font-medium">Partially Available</span>
-          </div>
+          {availability === RoomAvailabilityEnum.PARTIALLY_AVAILABLE ? (
+            <div className="flex items-center gap-2 text-amber-300">
+              <Clock size={18} />
+              <span className="font-medium">Partially Available</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-emerald-300">
+              <Check size={18} />
+              <span className="font-medium">Available</span>
+            </div>
+          )}
 
           {(availableSlots?.length || 0) > 2 && (
             <button
@@ -130,9 +127,15 @@ export const RoomAvailability = ({ onClose }: RoomAvailabilityProps) => {
           )}
         </div>
 
-        <p className="mt-1 text-sm text-gray-400">
-          {`This room is available only during the following period${(visibleSlots?.length || 0) > 1 ? "s" : ""}.`}
-        </p>
+        {availability === RoomAvailabilityEnum.PARTIALLY_AVAILABLE ? (
+          <p className="mt-1 text-sm text-gray-400">
+            {`This room is available only during the following period${(visibleSlots?.length || 0) > 1 ? "s" : ""}.`}
+          </p>
+        ) : (
+          <p className="mt-1 text-sm text-gray-400">
+            This room is available for your selected dates.
+          </p>
+        )}
 
         <div className="mt-4 space-y-2">
           {visibleSlots?.map((slot, index) => (

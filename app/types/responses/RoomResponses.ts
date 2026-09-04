@@ -16,6 +16,6 @@ export interface TimeSlot {
 
 export interface GetRoomAvailabilityResponse extends ErrorType {
   roomId: number;
-  availability: RoomAvailabilityEnum;
+  status: RoomAvailabilityEnum;
   availableSlots: TimeSlot[];
 }

@@ -1,4 +1,8 @@
-import { CountryLocale, CountryRegion } from "../types";
+import { CountryLocale, CountryRegion, TimeZones } from "../types";
+
+export const getBusinessTimeZone = () => {
+  return TimeZones.INDIA;
+};
 
 export const getCountryRegion = () => {
   return CountryRegion.UK;

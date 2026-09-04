@@ -5,7 +5,13 @@ export enum CountryLocale {
 }
 
 export enum CountryRegion {
-    INDIA='INDIA',
-    USA='USA',
-    UK='UK'
+  INDIA = "INDIA",
+  USA = "USA",
+  UK = "UK",
+}
+
+export enum TimeZones {
+  INDIA = "Asia/Kolkata",
+  USA = "America/New_York",
+  UK = "Europe/London",
 }

@@ -24,7 +24,7 @@ import {
 } from "@/app/lib/slices/BookingSlice";
 import { useCancelBooking } from "../hooks/useCancelBooking";
 import { Pencil } from "lucide-react";
-import { getCountryLocale } from "../utils/util";
+import { getBusinessTimeZone, getCountryLocale } from "../utils";
 
 const Bookings = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -60,6 +60,7 @@ const Bookings = () => {
   const dispatch = useAppDispatch();
 
   const locale = getCountryLocale();
+  const businessTimeZone = getBusinessTimeZone();
 
   const { isError, data, isLoading, refetch } = useFetchBookings();
   const bookings = data?.bookings || [];
@@ -94,8 +95,8 @@ const Bookings = () => {
         "Booking Details:",
         `Room Number: ${roomNumber}`,
         `Room Type: ${roomType}`,
-        `Check In: ${new Date(checkIn || "").toLocaleDateString(locale, { timeZone: "UTC" })}`,
-        `Check Out: ${new Date(checkOut || "").toLocaleDateString(locale, { timeZone: "UTC" })}`,
+        `Check In: ${new Date(checkIn || "").toLocaleDateString(locale, { timeZone: businessTimeZone })}`,
+        `Check Out: ${new Date(checkOut || "").toLocaleDateString(locale, { timeZone: businessTimeZone })}`,
         `Price/Night: ₹${pricePerNight}`,
         `Status: ${bookingStatus}`,
       ].join("\n");
@@ -105,7 +106,7 @@ const Bookings = () => {
         console.log("Error occured in QRCode: ", error);
       });
     }
-  }, [showQRCodePopup, currentBooking]);
+  }, [showQRCodePopup, currentBooking, locale]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -246,6 +247,12 @@ const Bookings = () => {
     );
   };
 
+  const isBookingStarted = (booking: Booking): boolean => {
+    return booking?.checkIn
+      ? new Date(booking?.checkIn).getTime() <= currentTime
+      : false;
+  };
+
   return (
     <div className="min-h-screen pt-28 px-6 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       <div className="max-w-7xl mx-auto">
@@ -335,16 +342,18 @@ const Bookings = () => {
                       <h3 className="text-xl font-semibold text-indigo-300">
                         Booking #{index + 1}
                       </h3>
-                      <Pencil
-                        size={20}
-                        className="text-gray-400 hover:text-indigo-400 cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowEditPopup(true);
-                          setEditBooking(booking);
-                          dispatch?.(setSelectedBooking(booking));
-                        }}
-                      />
+                      {!isBookingStarted(booking) && (
+                        <Pencil
+                          size={20}
+                          className="text-gray-400 hover:text-indigo-400 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowEditPopup(true);
+                            setEditBooking(booking);
+                            dispatch?.(setSelectedBooking(booking));
+                          }}
+                        />
+                      )}
                     </div>
 
                     <p className="text-gray-300 text-sm mb-1">
@@ -357,18 +366,14 @@ const Bookings = () => {
                       Check In:{" "}
                       {new Date(booking?.checkIn || "")?.toLocaleDateString(
                         locale,
-                        {
-                          timeZone: "UTC",
-                        },
+                        { timeZone: businessTimeZone },
                       )}
                     </p>
                     <p className="text-gray-300 text-sm mb-1">
                       Check Out:{" "}
                       {new Date(booking?.checkOut || "")?.toLocaleDateString(
                         locale,
-                        {
-                          timeZone: "UTC",
-                        },
+                        { timeZone: businessTimeZone },
                       )}
                     </p>
                     {booking?.bookingStatus === BookingStatus.CREATED &&
@@ -402,17 +407,19 @@ const Bookings = () => {
                           Confirm Booking
                         </button>
                       )}
-                      <button
-                        disabled={isLoading}
-                        className={`w-[50%] bg-indigo-600 hover:bg-indigo-500 py-2 rounded-lg font-medium transition cursor-pointer`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedBookingId(booking?.bookingId);
-                          setShowCancelPopup(true);
-                        }}
-                      >
-                        Cancel Booking
-                      </button>
+                      {!isBookingStarted(booking) && (
+                        <button
+                          disabled={isLoading}
+                          className={`w-[50%] bg-indigo-600 hover:bg-indigo-500 py-2 rounded-lg font-medium transition cursor-pointer`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedBookingId(booking?.bookingId);
+                            setShowCancelPopup(true);
+                          }}
+                        >
+                          Cancel Booking
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
