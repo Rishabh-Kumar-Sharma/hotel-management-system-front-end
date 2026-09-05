@@ -18,7 +18,6 @@ export const useLogin = () => {
         return;
       }
       dispatch(setUser(data));
-      sessionStorage?.setItem("authToken", data?.authToken);
       queryClient.setQueryData(["current-user"], data);
       router.push("/");
     },
