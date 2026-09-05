@@ -338,6 +338,16 @@ const Bookings = () => {
                       setShowQRCodePopup(true);
                     }}
                   >
+                    {isBookingStarted(booking) &&
+                      booking?.bookingStatus === BookingStatus.CONFIRMED && (
+                        <div className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
+                          <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+
+                          <span className="text-sm font-medium text-emerald-300">
+                            Your stay has started
+                          </span>
+                        </div>
+                      )}
                     <div className="flex justify-between items-center mb-2 ">
                       <h3 className="text-xl font-semibold text-indigo-300">
                         Booking #{index + 1}
@@ -388,6 +398,14 @@ const Bookings = () => {
                               {getRemainingTime(booking.expiresAt)}
                             </span>
                           </div>
+                        </div>
+                      )}
+                    {isBookingStarted(booking) &&
+                      booking?.bookingStatus === BookingStatus.CONFIRMED && (
+                        <div className="mt-4 flex items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/20 py-2">
+                          <span className="text-sm font-semibold text-emerald-300">
+                            ✓ Stay in Progress
+                          </span>
                         </div>
                       )}
                     <div
