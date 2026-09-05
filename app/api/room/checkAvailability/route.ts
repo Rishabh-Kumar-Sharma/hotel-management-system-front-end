@@ -1,4 +1,4 @@
-import { fetchData } from "../../lib/service-client";
+import { fetchData } from "../../lib";
 import { ApiMessageTypes } from "../../types/ApiMessageTypes";
 import { OperationTypes } from "../../types/OperationTypes";
 

@@ -20,4 +20,5 @@ export enum ApiMessageTypes {
   PAYMENT_VERIFICATION_FAILED = "Payment verification failed",
   PAYMENT_VERIFIED_SUCCESSFULLY = "Payment verified successfully",
   NO_BOOKING_AVAILABLE = "Booking is not available for the selected dates",
+  NO_USER_FOUND = "User does not exist",
 }
