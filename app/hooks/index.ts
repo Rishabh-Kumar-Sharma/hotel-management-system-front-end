@@ -6,3 +6,5 @@ export * from "./useSignup";
 export * from "./useConfirmBooking";
 export * from "./useCheckAvailability";
 export * from "./useUpdateBooking";
+export * from './useVerifyOTP'
+export * from './useResendOTP'

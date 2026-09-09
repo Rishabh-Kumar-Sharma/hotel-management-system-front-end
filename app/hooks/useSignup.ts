@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Signup } from "../services";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "../lib";
-import { setUser } from "../lib/slices/UserSlice";
+import { setSignedUpUser } from "../lib/slices/UserSlice";
 
 export const useSignup = () => {
   const router = useRouter();
@@ -11,8 +11,12 @@ export const useSignup = () => {
   return useMutation({
     mutationFn: Signup,
     onSuccess: (data) => {
-      router.push("/Login");
-      dispatch?.(setUser?.(data));
+      if (data?.isOTPSent) {
+        router.push("/VerifyOTP");
+      } else {
+        router.push("/Login");
+      }
+      dispatch?.(setSignedUpUser?.(data));
     },
   });
 };

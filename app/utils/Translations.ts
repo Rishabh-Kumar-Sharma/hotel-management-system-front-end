@@ -30,4 +30,9 @@ export enum Translations {
   SELECT = "Select",
   CHECK_AVAILABILITY = "Check Availability",
   BOOKING_UPDATE_SUCCESS = "Booking updated successfully",
+  OTP_VERIFICATION_SUCCESS = "OTP verified successfully",
+  INVALID_OTP = "Invalid OTP",
+  OTP_RESEND_SUCCESS = "OTP resent successfully",
+  OTP_RESEND_FAILED = "Failed to resend OTP. Please try again.",
+  OTP_EXPIRED = "OTP has expired. Please request a new one.",
 }

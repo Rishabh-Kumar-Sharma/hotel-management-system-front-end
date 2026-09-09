@@ -11,13 +11,13 @@ export default function Signup() {
 
   const [personDetails, setPersonDetails] = useState({
     emailId: "",
-    contactNo: "",
+    password: "",
     name: "",
   });
   const resetPersonDetails = () => {
     setPersonDetails({
       emailId: "",
-      contactNo: "",
+      password: "",
       name: "",
     });
   };
@@ -27,7 +27,7 @@ export default function Signup() {
     const req: CreateUserRequest = {
       name: personDetails.name,
       userName: personDetails.emailId,
-      password: personDetails.contactNo,
+      password: personDetails.password,
     };
     signup.mutate(req, {
       onSuccess: () => {
@@ -81,18 +81,18 @@ export default function Signup() {
 
           <div>
             <label className="block text-sm mb-1 text-gray-600 dark:text-gray-300">
-              Contact Number
+              Password
             </label>
             <input
-              value={personDetails.contactNo}
+              value={personDetails.password}
               onChange={(e) =>
                 setPersonDetails({
                   ...personDetails,
-                  contactNo: e?.target?.value,
+                  password: e?.target?.value,
                 })
               }
-              type="tel"
-              placeholder="2334234"
+              type="password"
+              placeholder="Enter your password"
               className="w-full px-4 py-2 rounded-xl bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800 dark:text-white"
             />
           </div>

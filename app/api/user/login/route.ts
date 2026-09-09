@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   if (!authToken) {
     return new Response(
       JSON.stringify({
-        error: ApiMessageTypes.INTERNAL_SERVER_ERROR,
+        error: responseData?.errorCode || ApiMessageTypes.INTERNAL_SERVER_ERROR,
       }),
       {
         status: 500,

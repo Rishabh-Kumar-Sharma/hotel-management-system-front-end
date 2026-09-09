@@ -1,14 +1,22 @@
-export interface LoginUserResponse {
+import { ErrorType } from "./BookingResponses";
+
+export interface LoginUserResponse extends ErrorType {
   id: number;
   userName: string;
   contactNo: string;
-  error?: string;
-  errorCode?: string;
 }
 
-export interface CreateUserResponse {
+export interface CreateUserResponse extends ErrorType {
   userName?: string;
   id?: number;
-  error?: string;
-  errorCode?: string;
+  isOTPSent?: boolean;
+  name?: string;
+}
+
+export interface VerifyOTPResponse extends ErrorType {
+  verificationStatus?: boolean;
+}
+
+export interface VerifyEmailResponse extends ErrorType {
+  isOTPSent?: boolean;
 }
